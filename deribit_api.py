@@ -1,10 +1,24 @@
 # -*- coding: utf-8 -*-
 
-import time, hashlib, requests, base64, sys
+import base64
+import hashlib
+import requests
+import time
 from collections import OrderedDict
 
+
 class RestClient(object):
+    """ client to make requests to Deribit's REST API """
+
     def __init__(self, key=None, secret=None, url=None):
+        """ configure API credentials. one can find these at:
+            --> https://www.deribit.com/main#/account?scrollTo=api
+
+        :param key: (str) access key
+        :param secret: (str) access secret
+        :param url: (str) root url, defaults to the main site
+            use this parameter to make API calls to Deribit's test net
+        """
         self.key = key
         self.secret = secret
         self.session = requests.Session()
@@ -15,6 +29,13 @@ class RestClient(object):
             self.url = "https://www.deribit.com"
 
     def request(self, action, data):
+        """ perform generic request to the API
+
+        :param action: (str) the suffix of the API endpoint
+            e.g. '/api/v1/public/getcurrencies'
+        :param data: (dict) additional data to pass to this request
+        :return: (str or dict) json response
+        """
         response = None
 
         if action.startswith("/api/v1/private/"):
@@ -22,10 +43,11 @@ class RestClient(object):
                 raise Exception("Key or secret empty")
 
             signature = self.generate_signature(action, data)
-            response = self.session.post(self.url + action, data=data, headers={'x-deribit-sig': signature}, verify=True)
+            response = self.session.post(self.url + action, data=data, headers={'x-deribit-sig': signature},
+                                         verify=True)
         else:
             response = self.session.get(self.url + action, params=data, verify=True)
-        
+
         if response.status_code != 200:
             raise Exception("Wrong response code: {0}".format(response.status_code))
 
@@ -33,7 +55,7 @@ class RestClient(object):
 
         if json["success"] == False:
             raise Exception("Failed: " + json["message"])
-        
+
         if "result" in json:
             return json["result"]
         elif "message" in json:
@@ -42,7 +64,16 @@ class RestClient(object):
             return "Ok"
 
     def generate_signature(self, action, data):
-        tstamp = int(time.time()* 1000)
+        """ create signature, as a function of:
+            - API credentials
+            - API action
+            - timestamp
+
+        :param action: (str) the suffix of the API endpoint
+        :param data: (dict) additional data to pass to this request
+        :return: (str) unicode string
+        """
+        tstamp = int(time.time() * 1000)
         signature_data = {
             '_': tstamp,
             '_ackey': self.key,
@@ -51,7 +82,6 @@ class RestClient(object):
         }
         signature_data.update(data)
         sorted_signature_data = OrderedDict(sorted(signature_data.items(), key=lambda t: t[0]))
-
 
         def converter(data):
             key = data[0]
@@ -67,7 +97,7 @@ class RestClient(object):
 
         sha256 = hashlib.sha256()
         sha256.update(signature_string.encode("utf-8"))
-        sig = self.key + "." + str(tstamp) + "." 
+        sig = self.key + "." + str(tstamp) + "."
         sig += base64.b64encode(sha256.digest()).decode("utf-8")
         return sig
 
@@ -77,10 +107,8 @@ class RestClient(object):
     def getinstruments(self):
         return self.request("/api/v1/public/getinstruments", {})
 
-
     def getcurrencies(self):
         return self.request("/api/v1/public/getcurrencies", {})
-
 
     def getlasttrades(self, instrument, count=None, since=None):
         options = {
@@ -95,22 +123,17 @@ class RestClient(object):
 
         return self.request("/api/v1/public/getlasttrades", options)
 
-
     def getsummary(self, instrument):
         return self.request("/api/v1/public/getsummary", {"instrument": instrument})
-
 
     def index(self):
         return self.request("/api/v1/public/index", {})
 
-    
     def stats(self):
         return self.request("/api/v1/public/stats", {})
 
-
     def account(self):
         return self.request("/api/v1/private/account", {})
-
 
     def buy(self, instrument, quantity, price, postOnly=None, label=None):
         options = {
@@ -118,7 +141,7 @@ class RestClient(object):
             "quantity": quantity,
             "price": price
         }
-  
+
         if label:
             options["label"] = label
 
@@ -126,7 +149,6 @@ class RestClient(object):
             options["postOnly"] = postOnly
 
         return self.request("/api/v1/private/buy", options)
-
 
     def sell(self, instrument, quantity, price, postOnly=None, label=None):
         options = {
@@ -142,18 +164,15 @@ class RestClient(object):
 
         return self.request("/api/v1/private/sell", options)
 
-
     def cancel(self, orderId):
         options = {
             "orderId": orderId
-        }  
+        }
 
         return self.request("/api/v1/private/cancel", options)
 
-
     def cancelall(self, typeDef="all"):
         return self.request("/api/v1/private/cancelall", {"type": typeDef})
-
 
     def edit(self, orderId, quantity, price):
         options = {
@@ -164,21 +183,18 @@ class RestClient(object):
 
         return self.request("/api/v1/private/edit", options)
 
-
     def getopenorders(self, instrument=None, orderId=None):
         options = {}
 
         if instrument:
-            options["instrument"] = instrument 
+            options["instrument"] = instrument
         if orderId:
             options["orderId"] = orderId
 
         return self.request("/api/v1/private/getopenorders", options)
 
-
     def positions(self):
         return self.request("/api/v1/private/positions", {})
-
 
     def orderhistory(self, count=None):
         options = {}
@@ -187,15 +203,14 @@ class RestClient(object):
 
         return self.request("/api/v1/private/orderhistory", options)
 
-
     def tradehistory(self, countNum=None, instrument="all", startTradeId=None):
         options = {
             "instrument": instrument
         }
-  
+
         if countNum:
             options["count"] = countNum
         if startTradeId:
             options["startTradeId"] = startTradeId
-        
+
         return self.request("/api/v1/private/tradehistory", options)
