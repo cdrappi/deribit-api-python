@@ -102,15 +102,35 @@ class RestClient(object):
         return sig
 
     def getorderbook(self, instrument):
+        """
+
+        :param instrument:
+        :return:
+        """
         return self.request("/api/v1/public/getorderbook", {'instrument': instrument})
 
     def getinstruments(self):
+        """
+
+        :return:
+        """
         return self.request("/api/v1/public/getinstruments", {})
 
     def getcurrencies(self):
+        """
+
+        :return:
+        """
         return self.request("/api/v1/public/getcurrencies", {})
 
     def getlasttrades(self, instrument, count=None, since=None):
+        """
+
+        :param instrument:
+        :param count:
+        :param since:
+        :return:
+        """
         options = {
             'instrument': instrument
         }
@@ -124,18 +144,44 @@ class RestClient(object):
         return self.request("/api/v1/public/getlasttrades", options)
 
     def getsummary(self, instrument):
+        """
+
+        :param instrument:
+        :return:
+        """
         return self.request("/api/v1/public/getsummary", {"instrument": instrument})
 
     def index(self):
+        """
+
+        :return:
+        """
         return self.request("/api/v1/public/index", {})
 
     def stats(self):
+        """
+
+        :return:
+        """
         return self.request("/api/v1/public/stats", {})
 
     def account(self):
+        """
+
+        :return:
+        """
         return self.request("/api/v1/private/account", {})
 
     def buy(self, instrument, quantity, price, postOnly=None, label=None):
+        """
+
+        :param instrument:
+        :param quantity:
+        :param price:
+        :param postOnly:
+        :param label:
+        :return:
+        """
         options = {
             "instrument": instrument,
             "quantity": quantity,
@@ -151,6 +197,15 @@ class RestClient(object):
         return self.request("/api/v1/private/buy", options)
 
     def sell(self, instrument, quantity, price, postOnly=None, label=None):
+        """
+
+        :param instrument:
+        :param quantity:
+        :param price:
+        :param postOnly:
+        :param label:
+        :return:
+        """
         options = {
             "instrument": instrument,
             "quantity": quantity,
@@ -165,6 +220,11 @@ class RestClient(object):
         return self.request("/api/v1/private/sell", options)
 
     def cancel(self, orderId):
+        """
+
+        :param orderId:
+        :return:
+        """
         options = {
             "orderId": orderId
         }
@@ -172,9 +232,21 @@ class RestClient(object):
         return self.request("/api/v1/private/cancel", options)
 
     def cancelall(self, typeDef="all"):
+        """
+
+        :param typeDef:
+        :return:
+        """
         return self.request("/api/v1/private/cancelall", {"type": typeDef})
 
     def edit(self, orderId, quantity, price):
+        """
+
+        :param orderId:
+        :param quantity:
+        :param price:
+        :return:
+        """
         options = {
             "orderId": orderId,
             "quantity": quantity,
@@ -184,6 +256,12 @@ class RestClient(object):
         return self.request("/api/v1/private/edit", options)
 
     def getopenorders(self, instrument=None, orderId=None):
+        """
+
+        :param instrument:
+        :param orderId:
+        :return:
+        """
         options = {}
 
         if instrument:
@@ -194,9 +272,18 @@ class RestClient(object):
         return self.request("/api/v1/private/getopenorders", options)
 
     def positions(self):
+        """
+
+        :return:
+        """
         return self.request("/api/v1/private/positions", {})
 
     def orderhistory(self, count=None):
+        """
+
+        :param count:
+        :return:
+        """
         options = {}
         if count:
             options["count"] = count
@@ -204,6 +291,13 @@ class RestClient(object):
         return self.request("/api/v1/private/orderhistory", options)
 
     def tradehistory(self, countNum=None, instrument="all", startTradeId=None):
+        """
+
+        :param countNum:
+        :param instrument:
+        :param startTradeId:
+        :return:
+        """
         options = {
             "instrument": instrument
         }
