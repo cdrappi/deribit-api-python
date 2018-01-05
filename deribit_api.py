@@ -2,9 +2,10 @@
 
 import base64
 import hashlib
-import requests
 import time
 from collections import OrderedDict
+
+import requests
 
 
 class RestClient(object):
