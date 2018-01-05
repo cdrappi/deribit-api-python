@@ -334,6 +334,60 @@ class RestClient(object):
 
         return self.request("/api/v1/private/sell", options)
 
+    @staticmethod
+    def _iv_data(instrument, quantity, iv):
+        """ create data for implied vol order
+
+        :param instrument: (float)
+        :param quantity: (float)
+        :param iv: (float) volatility percentage,
+            i.e. iv=100.0 would bid 100% for implied volatility
+        :return:
+        """
+        return {
+            "instrument": instrument,
+            "quantity": quantity,
+            "price": iv,
+            "adv": "implv",
+            "time_in_force": "good_til_cancelled"
+        }
+
+    def buyiv(self, instrument, quantity, iv):
+        """ submit a bid in terms of the option's implied volatility
+
+        :param instrument: (str)
+        :param quantity: (float)
+        :param iv: (float) volatility percentage,
+            i.e. iv=100.0 would bid 100% for implied volatility
+        :return:
+        """
+        return self.request(
+            action="/api/v1/private/buy",
+            data=self._iv_data(
+                instrument=instrument,
+                quantity=quantity,
+                iv=iv
+            )
+        )
+
+    def selliv(self, instrument, quantity, iv):
+        """ submit an offer in terms of the option's implied volatility
+
+        :param instrument: (str)
+        :param quantity: (float)
+        :param iv: (float) volatility percentage,
+            i.e. iv=100.0 would offer implied volatility at 100%
+        :return:
+        """
+        return self.request(
+            action="/api/v1/private/sell",
+            data=self._iv_data(
+                instrument=instrument,
+                quantity=quantity,
+                iv=iv
+            )
+        )
+
     def cancel(self, orderId):
         """ Cancel own order by id
 
