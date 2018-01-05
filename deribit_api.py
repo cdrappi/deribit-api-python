@@ -102,34 +102,91 @@ class RestClient(object):
         return sig
 
     def getorderbook(self, instrument):
-        """
+        """ Retrieve the orderbook for a given instrument
 
-        :param instrument:
-        :return:
+        :param instrument: (str) Required, instrument name
+        :return: (dict) example:
+            {
+                'state': 'open',
+                'settlementPrice': 2.705176305e-06,
+                'instrument': 'BTC-5JAN18-11000-P',
+                'bids': [],
+                'asks': [{'quantity': 1.2, 'price': 0.0033, 'cm': 1.2}],
+                'tstamp': 1515114174701,
+                'last': 0.0001,
+                'low': 0.0001,
+                'high': 0.0001,
+                'mark': 9.483847626285752e-15,
+                'uPx': 15048.52,
+                'uIx': 'index_price',
+                'iR': 0,
+                'markIv': 160.0,
+                'askIv': 500.0,
+                'bidIv': 0.0
+            }
         """
         return self.request("/api/v1/public/getorderbook", {'instrument': instrument})
 
     def getinstruments(self):
-        """
+        """ Retrieve all tradeable instruments
+            (both futures and options)
 
-        :return:
+        :return: ([dict]) list of dictionaries. example:
+            {
+                'kind': 'option',
+                'baseCurrency': 'BTC',
+                'currency': 'USD',
+                'minTradeSize': 0.1,
+                'instrumentName': 'BTC-5JAN18-11000-P',
+                'isActive': True,
+                'settlement': 'week',
+                'created': '2017-12-30 16:37:00 GMT',
+                'expiration': '2018-01-05 08:00:00 GMT',
+                'strike': 11000.0,
+                'optionType': 'put',
+                'pricePrecision': 4
+            }
         """
         return self.request("/api/v1/public/getinstruments", {})
 
     def getcurrencies(self):
-        """
+        """ Get all supported currencies
 
-        :return:
+        :return: ([dict]) list of dictionaries. example:
+            {
+                'currency': 'BTC',
+                'currencyLong': 'Bitcoin',
+                'minConfirmation': 2,
+                'txFee': 0.0006,
+                'isActive': True,
+                'coinType': 'BITCOIN',
+                'baseAddress': None
+            }
         """
         return self.request("/api/v1/public/getcurrencies", {})
 
     def getlasttrades(self, instrument, count=None, since=None):
-        """
+        """ Retrieve the latest trades that have occurred
+            for a specific instrument
 
-        :param instrument:
-        :param count:
-        :param since:
-        :return:
+        :param instrument: (str) Required, instrument name
+        :param count: (int) Optional, count of trades returned
+                            (limitation: max. count is 100)
+        :param since: (int) Optional, “since” trade id,
+            the server returns trades newer than that “since”
+        :return: ([dict]) list of dictionaries. example:
+            {
+                'tradeId': 3615901,
+                'instrument': 'BTC-5JAN18-11000-P',
+                'tradeSeq': 6,
+                'timeStamp': 1515113157777,
+                'quantity': 1.0,
+                'price': 0.0001,
+                'direction': 'sell',
+                'tickDirection': 2,
+                'indexPrice': 15060.03,
+                'iv': 402.81
+            }
         """
         options = {
             'instrument': instrument
@@ -144,42 +201,95 @@ class RestClient(object):
         return self.request("/api/v1/public/getlasttrades", options)
 
     def getsummary(self, instrument):
-        """
+        """ Retrieve the summary info such as
+            Open Interest, 24H Volume etc for a specific instrument
 
-        :param instrument:
-        :return:
+        :param instrument: (str) Required, instrument name
+        :return: (dict)
+            {
+                'instrumentName': 'BTC-5JAN18-11000-P',
+                'openInterest': 4.5,
+                'high': 0.0001,
+                'low': 0.0001,
+                'volume': 1.0,
+                'volumeBtc': 1.0,
+                'last': 0.0001,
+                'bidPrice': '',
+                'askPrice': 0.0033,
+                'midPrice': '',
+                'markPrice': 0.0,
+                'created': '2018-01-05 01:00:08 GMT'
+            }
         """
         return self.request("/api/v1/public/getsummary", {"instrument": instrument})
 
     def index(self):
-        """
+        """ Get price index, BTC-USD rates
 
-        :return:
+        :return: (dict)
+            {
+                'btc': float,
+                'edp': float,
+            }
         """
         return self.request("/api/v1/public/index", {})
 
     def stats(self):
         """
 
-        :return:
+        :return: (dict)
+            {
+                'btc_usd': {
+                    'futuresVolume': float,
+                    'putsVolume':    float,
+                    'callsVolume':   float
+                },
+                'created': 'YYYY-MM-DD HH:MM:SS GMT'
+            }
         """
         return self.request("/api/v1/public/stats", {})
 
     def account(self):
-        """
+        """ Get user account summary
 
-        :return:
+        :return: (dict) schema:
+            {
+                'equity':            float,
+                'maintenanceMargin': float,
+                'initialMargin':     float,
+                'availableFunds':    float,
+                'balance':           float,
+                'depositAddress':    str,
+                'SUPL':              float,
+                'SRPL':              float,
+                'PNL':               float,
+                'optionsPNL':        float,
+                'optionsSUPL':       float,
+                'optionsSRPL':       float,
+                'optionsD':          float,
+                'optionsG':          float,
+                'optionsV':          float,
+                'optionsTh':         float,
+                'futuresPNL':        float,
+                'futuresSUPL':       float,
+                'futuresSRPL':       float,
+                'deltaTotal':        float
+            }
         """
         return self.request("/api/v1/private/account", {})
 
     def buy(self, instrument, quantity, price, postOnly=None, label=None):
-        """
+        """ Place a buy order in an instrument
 
-        :param instrument:
-        :param quantity:
-        :param price:
-        :param postOnly:
-        :param label:
+        :param instrument: (str) Required, instrument name
+        :param quantity: (int) Required, quantity, in contracts
+                               $10 per contract for futures
+                               ฿1 for options
+        :param price: (float) Required, USD for futures, BTC for options
+        :param postOnly: (bool) Optional, if true then
+                                the order will be POST ONLY
+        :param label: (str) Optional, user defined maximum
+                            4-char label for the order
         :return:
         """
         options = {
@@ -197,13 +307,17 @@ class RestClient(object):
         return self.request("/api/v1/private/buy", options)
 
     def sell(self, instrument, quantity, price, postOnly=None, label=None):
-        """
+        """ Place a sell order in an instrument
 
-        :param instrument:
-        :param quantity:
-        :param price:
-        :param postOnly:
-        :param label:
+        :param instrument: (str) Required, instrument name
+        :param quantity: (int) Required, quantity, in contracts
+                               $10 per contract for futures
+                               ฿1 for options
+        :param price: (float) Required, USD for futures, BTC for options
+        :param postOnly: (bool) Optional, if true then
+                                the order will be POST ONLY
+        :param label: (str) Optional, user defined maximum
+                            4-char label for the order
         :return:
         """
         options = {
@@ -220,10 +334,11 @@ class RestClient(object):
         return self.request("/api/v1/private/sell", options)
 
     def cancel(self, orderId):
-        """
+        """ Cancel own order by id
 
-        :param orderId:
-        :return:
+        :param orderId: (int) Required, ID of the order returned
+                              by "sell" or "buy" request
+        :return: None
         """
         options = {
             "orderId": orderId
@@ -232,19 +347,24 @@ class RestClient(object):
         return self.request("/api/v1/private/cancel", options)
 
     def cancelall(self, typeDef="all"):
-        """
+        """ Cancel all own futures, or all options, or all.
 
-        :param typeDef:
-        :return:
+        :param typeDef: (str) Optional, type of instruments to cancel,
+                              allowed: "all", "futures", "options",
+                              default: "all"
+        :return: (str) 'cancel all'
         """
         return self.request("/api/v1/private/cancelall", {"type": typeDef})
 
     def edit(self, orderId, quantity, price):
-        """
+        """ Edit price and/or quantity of the own order.
+            (Authorization is required).
 
-        :param orderId:
-        :param quantity:
-        :param price:
+        :param orderId: (int) Required, ID of the order returned
+                              by "sell" or "buy" request
+        :param quantity: (int) Required, quantity, in contracts
+            ($10 per contract for futures, ฿1 for options)
+        :param price: (float) Required, USD for futures, BTC for options
         :return:
         """
         options = {
@@ -256,11 +376,12 @@ class RestClient(object):
         return self.request("/api/v1/private/edit", options)
 
     def getopenorders(self, instrument=None, orderId=None):
-        """
+        """ Retrieve open orders.
 
-        :param instrument:
-        :param orderId:
-        :return:
+        :param instrument: (str) Optional, instrument name,
+            use if want orders for specific instrument
+        :param orderId: (int) Optional, order id
+        :return: ([dict])
         """
         options = {}
 
@@ -272,17 +393,17 @@ class RestClient(object):
         return self.request("/api/v1/private/getopenorders", options)
 
     def positions(self):
-        """
+        """ Retrieve positions.
 
-        :return:
+        :return: ([dict])
         """
         return self.request("/api/v1/private/positions", {})
 
     def orderhistory(self, count=None):
-        """
+        """ Get history of own orders
 
-        :param count:
-        :return:
+        :param count: (int) Optional, number of requested records
+        :return: ([dict])
         """
         options = {}
         if count:
@@ -291,12 +412,14 @@ class RestClient(object):
         return self.request("/api/v1/private/orderhistory", options)
 
     def tradehistory(self, countNum=None, instrument="all", startTradeId=None):
-        """
+        """ Get private trade history of the account. (Authorization is required).
+            The result is ordered by trade identifiers (trade id-s).
 
-        :param countNum:
-        :param instrument:
-        :param startTradeId:
-        :return:
+        :param countNum: (int) Optional, number of results to fetch. Default: 20
+        :param instrument: (str) Optional, name of instrument,
+            also aliases “all”, “futures”, “options” are allowed. Default: "all"
+        :param startTradeId: (int) Optional, number of requested records
+        :return: ([dict])
         """
         options = {
             "instrument": instrument
