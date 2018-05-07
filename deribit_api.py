@@ -290,7 +290,7 @@ class RestClient(object):
         :param postOnly: (bool) Optional, if true then
                                 the order will be POST ONLY
         :param label: (str) Optional, user defined maximum
-                            4-char label for the order
+                            32-char label for the order
         :return:
         """
         options = {
