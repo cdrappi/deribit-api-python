@@ -279,7 +279,9 @@ class RestClient(object):
         """
         return self.request("/api/v1/private/account", {})
 
-    def buy(self, instrument, quantity, price, postOnly=None, label=None):
+    def buy(self, instrument, quantity, price,
+            postOnly=None, label=None,
+            time_in_force='good_til_cancelled'):
         """ Place a buy order in an instrument
 
         :param instrument: (str) Required, instrument name
@@ -291,12 +293,18 @@ class RestClient(object):
                                 the order will be POST ONLY
         :param label: (str) Optional, user defined maximum
                             4-char label for the order
+        :param time_in_force: (str) Optional. choices are:
+            "good_til_cancelled": default, good until order is cancelled
+            "immediate_or_cancel": order is immediately filled or is automatically cancelled
+            "fill_or_kill": order must be completely filled or is automatically cancelled.
+                --> note this is stricter than IOC, since FOK does not allow partial execution
         :return:
         """
         options = {
             "instrument": instrument,
             "quantity": quantity,
-            "price": price
+            "price": price,
+            "time_in_force": time_in_force
         }
 
         if label:
@@ -307,7 +315,9 @@ class RestClient(object):
 
         return self.request("/api/v1/private/buy", options)
 
-    def sell(self, instrument, quantity, price, postOnly=None, label=None):
+    def sell(self, instrument, quantity, price,
+             postOnly=None, label=None,
+             time_in_force='good_til_cancelled'):
         """ Place a sell order in an instrument
 
         :param instrument: (str) Required, instrument name
@@ -319,12 +329,18 @@ class RestClient(object):
                                 the order will be POST ONLY
         :param label: (str) Optional, user defined maximum
                             4-char label for the order
+        :param time_in_force: (str) Optional. choices are:
+            "good_til_cancelled": default, good until order is cancelled
+            "immediate_or_cancel": order is immediately filled or is automatically cancelled
+            "fill_or_kill": order must be completely filled or is automatically cancelled.
+                --> note this is stricter than IOC, since FOK does not allow partial execution
         :return:
         """
         options = {
             "instrument": instrument,
             "quantity": quantity,
-            "price": price
+            "price": price,
+            "time_in_force": time_in_force
         }
 
         if label:
